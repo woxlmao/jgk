@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Joke Factory | Dark Mode</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* General Body & Dark Theme Styling */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+            background-image: radial-gradient(circle at 10% 20%, rgba(90, 92, 106, 0.3) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 90%, rgba(37, 99, 235, 0.2) 0%, transparent 50%);
+        }
+
+        /* Main container for all content */
+        .container {
+            max-width: 600px;
+            padding: 40px;
+            width: 90%;
+        }
+
+        /* Title Styling */
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(59, 130, 246, 0.5);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+        }
+
+        /* Dropdown Select Menu Styling */
+        select {
+            -webkit-appearance: none;
+            appearance: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            padding: 12px 40px 12px 15px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background-color: rgba(30, 30, 30, 0.7);
+            color: #e0e0e0;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='%23e0e0e0' class='w-6 h-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        select:hover {
+            border-color: rgba(59, 130, 246, 0.8);
+        }
+
+        /* Button Styling */
+        button {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            background-color: #3B82F6; /* A nice blue */
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+            background-color: #2563EB;
+        }
+
+        /* Glassmorphism Joke Container */
+        .joke-container {
+            margin-top: 30px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            min-height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #jokeText {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #ffffff;
+            white-space: pre-wrap; /* Preserves line breaks for two-part jokes */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>The Joke Factory</h1>
+        <p>Select a category and get a joke!</p>
+        
+        <select id="jokeType">
+            <option value="dad">Dad Joke</option>
+            <option value="dark">Dark Joke</option>
+            <option value="any">Any Joke</option>
+        </select>
+        
+        <button id="getJokeBtn">Get a New Joke</button>
+    
+        <div class="joke-container">
+            <p id="jokeText">Click the button to get a joke!</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const getJokeBtn = document.getElementById('getJokeBtn');
+            const jokeText = document.getElementById('jokeText');
+            const jokeTypeSelect = document.getElementById('jokeType');
+
+            async function fetchJoke() {
+                const jokeType = jokeTypeSelect.value;
+                jokeText.textContent = 'Finding a good one...';
+
+                try {
+                    let apiUrl = '';
+                    
+                    if (jokeType === 'dad') {
+                        apiUrl = 'https://icanhazdadjoke.com/';
+                    } else if (jokeType === 'dark') {
+                        apiUrl = 'https://v2.jokeapi.dev/joke/Dark';
+                    } else {
+                        apiUrl = 'https://v2.jokeapi.dev/joke/Any?safe-mode';
+                    }
+
+                    const response = await fetch(apiUrl, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (!response.ok) throw new Error('Network response was not ok');
+
+                    const data = await response.json();
+                    
+                    let jokeData;
+                    if (data.joke) { // For single-part jokes (icanhazdadjoke)
+                        jokeData = data.joke;
+                    } else { // For two-part jokes (JokeAPI)
+                        jokeData = `${data.setup}\n...\n${data.delivery}`;
+                    }
+                    
+                    jokeText.textContent = jokeData;
+
+                } catch (error) {
+                    jokeText.textContent = 'Oops! Could not fetch a joke. Please try again.';
+                    console.error('There was an error!', error);
+                }
+            }
+
+            getJokeBtn.addEventListener('click', fetchJoke);
+            fetchJoke(); // Fetch a joke on initial load
+        });
+    </script>
+</body>
+</html>
